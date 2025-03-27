@@ -11,6 +11,9 @@ router.post('/login', login);
 
 // Get user profile (protected route, accessible to all authenticated users)
 router.get('/profile', protect, getProfile);
+
+
+
 // // Example: Route accessible only to restaurant_admin
 // router.get('/admin-dashboard', protect, authorize('restaurant_admin'), (req, res) => {
 //   res.json({ message: 'Welcome to the Admin Dashboard' });
