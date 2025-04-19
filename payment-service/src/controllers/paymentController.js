@@ -1,21 +1,22 @@
 const mongoose = require('mongoose');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const Payment = require('../models/Payment');
+const Card = require('../models/Card');
 
 // Ensure the Stripe key is available
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('STRIPE_SECRET_KEY is not defined in environment variables');
 }
 
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const Payment = require('../models/Payment');
-
 // Process payment for an order
 const processPayment = async (req, res) => {
-  const { orderId, amount, paymentMethod } = req.body;
+  const { orderId, amount, cardId } = req.body; // Changed from paymentMethod to cardId
+  const userId = req.user.id;
 
   try {
     // Validate input
-    if (!orderId || !amount || !paymentMethod) {
-      return res.status(400).json({ message: 'Order ID, amount, and payment method are required' });
+    if (!orderId || !amount || !cardId) {
+      return res.status(400).json({ message: 'Order ID, amount, and card ID are required' });
     }
 
     // Validate orderId format
@@ -23,16 +24,23 @@ const processPayment = async (req, res) => {
       return res.status(400).json({ message: 'Invalid order ID format' });
     }
 
+    // Find the card to get the Stripe payment method ID
+    const card = await Card.findOne({ _id: cardId, userId });
+    if (!card) {
+      return res.status(404).json({ message: 'Card not found or not authorized' });
+    }
+
     // Create a payment intent with Stripe
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Stripe expects amount in cents
-      currency: 'usd', // Changed to USD for testing; revert to 'lkr' if supported
-      payment_method: paymentMethod, // For testing, use Stripe test payment methods (e.g., pm_card_visa). In production, this should be a Stripe payment method ID (pm_xxx) from the frontend.
+      currency: 'usd', // Use 'lkr' if supported and configured
+      payment_method: card.stripePaymentMethodId, // Use the stored Stripe payment method ID
       confirm: true,
       automatic_payment_methods: {
         enabled: true,
         allow_redirects: 'never',
       },
+      metadata: { orderId },
     });
 
     // Create a payment record in the database

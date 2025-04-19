@@ -4,11 +4,10 @@ dotenv.config();
 const cors = require("cors");
 const connectDB = require("./src/config/db");
 const paymentRoutes = require("./src/routes/paymentRoutes");
+const cardRoutes = require('./src/routes/cardRoutes');
 
 
 connectDB();
-
-console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY); // Debug log
 
 
 const app = express();
@@ -18,6 +17,7 @@ app.use(cors());
 
 // Routes
 app.use("/api/payments", paymentRoutes);
+app.use("/api/card", cardRoutes);
 
 
 

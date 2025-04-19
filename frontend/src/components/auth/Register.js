@@ -65,7 +65,8 @@ const Register = () => {
             onChange={(e) => setRole(e.target.value)}
           >
             <option value="customer">Customer</option>
-            <option value="admin">Admin</option>
+            <option value="restaurant_admin">Res-Admin</option>
+            <option value="delivery_personnel">Delivery</option>
           </select>
         </div>
         <button type="submit" disabled={loading}>
