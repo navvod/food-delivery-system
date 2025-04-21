@@ -1,7 +1,6 @@
-// src/pages/RegisterPage.js
 import React from 'react';
-import Navbar from '../components/common/Navbar';
-import Register from '../components/auth/Register';
+import Navbar from '../../components/common/Navbar';
+import Register from '../../components/auth/Register';
 
 const RegisterPage = () => {
   return (
