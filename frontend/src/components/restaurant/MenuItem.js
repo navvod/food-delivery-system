@@ -7,13 +7,20 @@ const MenuItem = ({ item }) => {
 
   const handleAddToCart = (e) => {
     e.stopPropagation(); // Prevent triggering the card's onClick
-    // Placeholder for adding to cart (you'll need to implement cart logic)
     toast.success(`${item.name} added to cart!`, {
       position: 'top-right',
       autoClose: 2000,
     });
-    // Optionally navigate to cart page
-    // navigate('/cart');
+    // Navigate to the AddToCartPage with item details
+    navigate('/add-to-cart', {
+      state: {
+        restaurantId: item.restaurantId,
+        itemId: item._id,
+        itemName: item.name,
+        description: item.description,
+        price: item.price,
+      },
+    });
   };
 
   const handleClick = () => {

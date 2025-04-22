@@ -17,7 +17,7 @@ const CartPage = () => {
   }, [fetchCart]);
 
   const handleContinueShopping = () => {
-    navigate('/add-to-cart');
+    navigate('/restaurants');
   };
 
   const handleCheckout = () => {
