@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import restaurantService from '../../services/restaurantService';
 import { toast } from 'react-toastify';
 import Navbar from '../../components/common/Navbar';
+import EditMenuItemForm from '../../components/restaurant/EditMenuItemForm';
 
 const EditMenuItemPage = () => {
   const { restaurantId, itemId } = useParams();
@@ -18,6 +19,13 @@ const EditMenuItemPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log('restaurantId:', restaurantId, 'itemId:', itemId);
+    if (!restaurantId || !itemId || itemId === 'undefined') {
+      setError('Invalid restaurant or menu item ID');
+      setLoading(false);
+      return;
+    }
+
     const fetchMenuItem = async () => {
       try {
         const item = await restaurantService.getMenuItem(restaurantId, itemId);
@@ -34,23 +42,19 @@ const EditMenuItemPage = () => {
         setLoading(false);
       }
     };
+
     fetchMenuItem();
   }, [restaurantId, itemId]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleUpdateMenuItem = async (e) => {
-    e.preventDefault();
+  const handleUpdateMenuItem = async (updatedItem) => {
+    if (!itemId || itemId === 'undefined') {
+      toast.error('Invalid menu item ID. Cannot update.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      return;
+    }
     try {
-      const updatedItem = {
-        name: formData.name,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        category: formData.category,
-        image: formData.image || undefined,
-      };
       await restaurantService.updateMenuItem(restaurantId, itemId, updatedItem);
       toast.success('Menu item updated successfully!', {
         position: 'top-right',
@@ -58,11 +62,12 @@ const EditMenuItemPage = () => {
       });
       navigate(`/restaurant/${restaurantId}/dashboard`);
     } catch (err) {
-      toast.error(err.message || 'Failed to update menu item', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
+      throw err;
     }
+  };
+
+  const handleCancel = () => {
+    navigate(`/restaurant/${restaurantId}/dashboard`);
   };
 
   if (loading) {
@@ -70,7 +75,12 @@ const EditMenuItemPage = () => {
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return (
+      <div>
+        <Navbar />
+        <div>{error}</div>
+      </div>
+    );
   }
 
   return (
@@ -78,61 +88,11 @@ const EditMenuItemPage = () => {
       <Navbar />
       <section>
         <h2>Edit Menu Item</h2>
-        <form onSubmit={handleUpdateMenuItem}>
-          <div>
-            <label>Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <label>Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label>Price</label>
-            <input
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              required
-              min="0"
-              step="0.01"
-            />
-          </div>
-          <div>
-            <label>Category</label>
-            <input
-              type="text"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <label>Image URL (optional)</label>
-            <input
-              type="text"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-            />
-          </div>
-          <button type="submit">Update Menu Item</button>
-        </form>
-        <button onClick={() => navigate(`/restaurant/${restaurantId}/dashboard`)}>
-          Back to Dashboard
-        </button>
+        <EditMenuItemForm
+          item={formData}
+          onUpdate={handleUpdateMenuItem}
+          onCancel={handleCancel}
+        />
       </section>
     </div>
   );

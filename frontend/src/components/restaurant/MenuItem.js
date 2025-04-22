@@ -30,34 +30,20 @@ const MenuItem = ({ item }) => {
   };
 
   return (
-    <div
-      onClick={handleClick}
-      className="border rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
-    >
-      <div className="w-full h-32 bg-gray-200">
+    <div onClick={handleClick}>
+      <div>
         {item.image ? (
-          <img
-            src={item.image}
-            alt={item.name}
-            className="w-full h-full object-cover"
-          />
+          <img src={item.image} alt={item.name} />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-500">
-            No Image
-          </div>
+          <div>No Image</div>
         )}
       </div>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-secondary">{item.name}</h3>
-        <p className="text-secondary text-sm">{item.description}</p>
-        <div className="flex justify-between items-center mt-2">
-          <p className="text-secondary font-semibold">
-            {formatPrice(item.price)}
-          </p>
-          <button
-            onClick={handleAddToCart}
-            className="bg-primary text-white py-1 px-3 rounded hover:bg-primary-dark"
-          >
+      <div>
+        <h3>{item.name}</h3>
+        <p>{item.description}</p>
+        <div>
+          <p>{formatPrice(item.price)}</p>
+          <button onClick={handleAddToCart}>
             Add to Cart
           </button>
         </div>

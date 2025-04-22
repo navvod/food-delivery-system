@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
 import restaurantService from '../../services/restaurantService';
-import Navbar from '../../components/common/Navbar';
+import AdminDashboardContent from '../../components/restaurant/AdminDashboardContent';
 
-const AdminDashboard = () => {
+const AdminDashboardPage = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState(null);
@@ -39,31 +39,14 @@ const AdminDashboard = () => {
     fetchRestaurantDetails();
   }, [navigate]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return (
-      <div>
-        <Navbar />
-        <p>{error}</p>
-        <button onClick={() => navigate('/admin/register-restaurant')}>
-          Register a Restaurant
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <Navbar />
-      <p>No restaurant found. Please register your restaurant.</p>
-      <button onClick={() => navigate('/admin/register-restaurant')}>
-        Register a Restaurant
-      </button>
-    </div>
+    <AdminDashboardContent
+      loading={loading}
+      error={error}
+      restaurant={restaurant}
+      navigate={navigate}
+    />
   );
 };
 
-export default AdminDashboard;
+export default AdminDashboardPage;

@@ -1,4 +1,14 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
+
+const menuCategories = [
+  'Main Course',
+  'Appetizers',
+  'Desserts',
+  'Beverages',
+  'Sides',
+  'Snacks',
+];
 
 const EditMenuItemForm = ({ item, onUpdate, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -6,32 +16,66 @@ const EditMenuItemForm = ({ item, onUpdate, onCancel }) => {
     description: item.description || '',
     price: item.price,
     category: item.category,
-    image: item.image || '',
-    isAvailable: item.isAvailable,
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [uploadLoading, setUploadLoading] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: value,
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please upload an image file.', {
+          position: 'top-right',
+          autoClose: 3000,
+        });
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size exceeds 5MB.', {
+          position: 'top-right',
+          autoClose: 3000,
+        });
+        return;
+      }
+      setImageFile(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onUpdate(item._id, {
-      name: formData.name,
-      description: formData.description,
-      price: parseFloat(formData.price),
-      category: formData.category,
-      image: formData.image || undefined,
-      isAvailable: formData.isAvailable,
-    });
+    setUploadLoading(true);
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('price', parseFloat(formData.price));
+      formDataToSend.append('category', formData.category);
+      if (imageFile) {
+        formDataToSend.append('image', imageFile);
+      }
+
+      await onUpdate(formDataToSend);
+    } catch (err) {
+      toast.error(err.message || 'Failed to update menu item', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    } finally {
+      setUploadLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} encType="multipart/form-data">
       <div>
         <label htmlFor="edit-name">Name:</label>
         <input
@@ -74,36 +118,36 @@ const EditMenuItemForm = ({ item, onUpdate, onCancel }) => {
           onChange={handleChange}
           required
         >
-          <option value="">Select Category</option>
-          <option value="Appetizer">Appetizer</option>
-          <option value="Main Course">Main Course</option>
-          <option value="Dessert">Dessert</option>
-          <option value="Beverage">Beverage</option>
+          {menuCategories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
         </select>
       </div>
       <div>
-        <label htmlFor="edit-image">Image URL (Optional):</label>
-        <input
-          id="edit-image"
-          type="text"
-          name="image"
-          value={formData.image}
-          onChange={handleChange}
-        />
+        <label>Current Image:</label>
+        {item.image ? (
+          <div>
+            <img src={item.image} alt="Current menu item" />
+          </div>
+        ) : (
+          <p>No image uploaded</p>
+        )}
       </div>
       <div>
-        <label htmlFor="edit-isAvailable">
-          <input
-            id="edit-isAvailable"
-            type="checkbox"
-            name="isAvailable"
-            checked={formData.isAvailable}
-            onChange={handleChange}
-          />
-          Available
-        </label>
+        <label htmlFor="edit-image">Upload New Image (Optional):</label>
+        <input
+          id="edit-image"
+          type="file"
+          name="image"
+          accept="image/*"
+          onChange={handleFileChange}
+        />
       </div>
-      <button type="submit">Update Menu Item</button>
+      <button type="submit" disabled={uploadLoading}>
+        {uploadLoading ? 'Uploading...' : 'Update Menu Item'}
+      </button>
       <button type="button" onClick={onCancel}>Cancel</button>
     </form>
   );
