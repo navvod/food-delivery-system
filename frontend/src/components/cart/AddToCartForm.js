@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useCart from '../../hooks/useCart';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../common/LoadingSpinner';
@@ -7,6 +7,9 @@ import LoadingSpinner from '../common/LoadingSpinner';
 const AddToCartForm = () => {
   const { addToCart, loading } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Initialize formData with default values
   const [formData, setFormData] = useState({
     restaurantId: '',
     itemId: '',
@@ -16,9 +19,30 @@ const AddToCartForm = () => {
     quantity: 1,
   });
 
+  // Populate formData with data from navigation state
+  useEffect(() => {
+    const { restaurantId, itemId, itemName, description, price } = location.state || {};
+    if (restaurantId && itemId && itemName && price) {
+      setFormData({
+        restaurantId: restaurantId || '',
+        itemId: itemId || '',
+        itemName: itemName || '',
+        description: description || '',
+        price: price ? price.toString() : '',
+        quantity: 1,
+      });
+    } else {
+      toast.error('Missing item details. Please select an item to add to cart.');
+      navigate('/'); // Redirect to home or menu page if data is missing
+    }
+  }, [location.state, navigate]);
+
+  // Only allow quantity to be changed
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === 'quantity') {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -33,102 +57,52 @@ const AddToCartForm = () => {
         quantity: parseInt(formData.quantity),
       });
       toast.success('Item added to cart!');
-      setFormData({
-        restaurantId: '',
-        itemId: '',
-        itemName: '',
-        description: '',
-        price: '',
-        quantity: 1,
-      });
-      navigate('/cart');
+      navigate('/cart'); // Redirect to cart view page
     } catch (error) {
       console.error('Add to cart error:', error.response?.data || error.message);
       toast.error(error.response?.data?.error || 'Failed to add to cart');
     }
   };
 
+  // Format price in LKR (similar to MenuItem.js)
+  const formatPrice = (price) => {
+    return `LKR ${parseFloat(price).toLocaleString('en-LK', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
   if (loading) return <LoadingSpinner />;
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Add Item to Cart</h2>
-      
-      <div>
-        <label>Restaurant ID</label>
-        <input
-          type="text"
-          name="restaurantId"
-          placeholder="Restaurant ID"
-          value={formData.restaurantId}
-          onChange={handleChange}
-          required
-        />
-      </div>
+      {/* Use itemName as the header */}
+      <h2>{formData.itemName}</h2>
 
-      <div>
-        <label>Item ID</label>
-        <input
-          type="text"
-          name="itemId"
-          placeholder="Item ID"
-          value={formData.itemId}
-          onChange={handleChange}
-          required
-        />
-      </div>
+      {/* Display description as a subheading */}
+      <p>{formData.description || 'No description available'}</p>
 
-      <div>
-        <label>Item Name</label>
-        <input
-          type="text"
-          name="itemName"
-          placeholder="Item Name"
-          value={formData.itemName}
-          onChange={handleChange}
-          required
-        />
-      </div>
+      {/* Display price as a subheading */}
+    
+      <p>{formData.price ? formatPrice(formData.price) : 'Price not available'}</p>
 
-      <div>
-        <label>Description</label>
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-        />
-      </div>
-
-      <div>
-        <label>Price</label>
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={formData.price}
-          onChange={handleChange}
-          min="0"
-          step="0.01"
-          required
-        />
-      </div>
-
+      {/* Quantity input field */}
       <div>
         <label>Quantity</label>
         <input
           type="number"
           name="quantity"
-          placeholder="Quantity"
           value={formData.quantity}
           onChange={handleChange}
           min="1"
           required
+          placeholder="Quantity"
         />
       </div>
 
+      {/* Button with dynamic quantity text */}
       <button type="submit" disabled={loading}>
-        {loading ? 'Adding...' : 'Add to Cart'}
+        {loading ? 'Adding...' : `Add ${formData.quantity} to cart`}
       </button>
     </form>
   );
