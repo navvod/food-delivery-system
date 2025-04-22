@@ -1,7 +1,24 @@
 const mongoose = require('mongoose');
 const Restaurant = require('../models/Restaurant');
 const MenuItem = require('../models/MenuItem');
-const axios = require('axios');
+const cloudinary = require('../config/cloudinaryConfig');
+
+// Helper function to upload image to Cloudinary
+const uploadImageToCloudinary = (file) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: 'food-delivery-app' },
+      (error, result) => {
+        if (error) {
+          reject(new Error('Failed to upload image to Cloudinary: ' + error.message));
+        } else {
+          resolve(result.secure_url);
+        }
+      }
+    );
+    stream.end(file.buffer);
+  });
+};
 
 // Get all restaurants (public)
 const getRestaurants = async (req, res) => {
@@ -31,6 +48,15 @@ const getRestaurantMenu = async (req, res) => {
 const getMenuItem = async (req, res) => {
   try {
     const { restaurantId, itemId } = req.params;
+
+    // Validate restaurantId and itemId
+    if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
+      return res.status(400).json({ error: 'Invalid restaurant ID format' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      return res.status(400).json({ error: 'Invalid menu item ID format' });
+    }
+
     const restaurant = await Restaurant.findOne({ _id: restaurantId, adminId: req.user.id });
     if (!restaurant) {
       return res.status(404).json({ error: 'Restaurant not found' });
@@ -59,13 +85,18 @@ const registerRestaurant = async (req, res) => {
       return res.status(400).json({ error: 'Invalid user ID format in token' });
     }
 
+    let imageUrl;
+    if (req.file) {
+      imageUrl = await uploadImageToCloudinary(req.file);
+    }
+
     const restaurant = new Restaurant({
       adminId: req.user.id,
       name: req.body.name,
       address: req.body.address,
       contact: req.body.contact,
       cuisineType: req.body.cuisineType,
-      image: req.body.image || undefined, // Add image field
+      image: imageUrl,
     });
     await restaurant.save();
     res.status(201).json({ message: 'Restaurant registered successfully', restaurant });
@@ -90,7 +121,6 @@ const updateAvailability = async (req, res) => {
   }
 };
 
-// Add a menu item (restaurant admin)
 const addMenuItem = async (req, res) => {
   try {
     console.log('Adding menu item with data:', req.body);
@@ -109,24 +139,32 @@ const addMenuItem = async (req, res) => {
       return res.status(404).json({ error: 'Restaurant not found' });
     }
 
-    const { name, price, category } = req.body;
+    const { name, price: priceString, category } = req.body;
     if (!name || typeof name !== 'string') {
       return res.status(400).json({ error: 'Name is required and must be a string' });
     }
-    if (typeof price !== 'number' || price <= 0) {
+
+    const price = parseFloat(priceString); // Parse price from string to number
+    if (isNaN(price) || price <= 0) {
       return res.status(400).json({ error: 'Price is required and must be a positive number' });
     }
+
     if (!category || typeof category !== 'string') {
       return res.status(400).json({ error: 'Category is required and must be a string' });
+    }
+
+    let imageUrl;
+    if (req.file) {
+      imageUrl = await uploadImageToCloudinary(req.file);
     }
 
     const menuItem = new MenuItem({
       restaurantId: restaurant._id,
       name: req.body.name,
       description: req.body.description,
-      price: req.body.price,
+      price: price,
       category: req.body.category,
-      image: req.body.image,
+      image: imageUrl,
     });
     await menuItem.save();
     res.status(201).json({ message: 'Menu item added', menuItem });
@@ -135,7 +173,6 @@ const addMenuItem = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
 // Update a menu item (restaurant admin)
 const updateMenuItem = async (req, res) => {
   try {
@@ -162,6 +199,11 @@ const updateMenuItem = async (req, res) => {
       return res.status(403).json({ error: 'Restaurant not found or not authorized' });
     }
 
+    let imageUrl = menuItem.image;
+    if (req.file) {
+      imageUrl = await uploadImageToCloudinary(req.file);
+    }
+
     const allowedUpdates = ['name', 'description', 'price', 'category', 'image'];
     const updateData = {};
     for (const key of allowedUpdates) {
@@ -172,6 +214,8 @@ const updateMenuItem = async (req, res) => {
             return res.status(400).json({ error: 'Price must be a valid number' });
           }
           updateData.price = price;
+        } else if (key === 'image') {
+          updateData[key] = imageUrl;
         } else {
           updateData[key] = req.body[key];
         }
@@ -187,7 +231,6 @@ const updateMenuItem = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
 // Delete a menu item (restaurant admin)
 const deleteMenuItem = async (req, res) => {
   try {
@@ -226,10 +269,6 @@ const getRestaurantDetails = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
-
-
-
 
 module.exports = {
   getRestaurants,
