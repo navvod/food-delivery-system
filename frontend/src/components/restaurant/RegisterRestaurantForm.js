@@ -1,28 +1,46 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
-const menuCategories = [
-  'Main Course',
-  'Appetizers',
-  'Desserts',
-  'Beverages',
-  'Sides',
-  'Snacks',
+const categories = [
+  'Vegan',
+  'Fusion',
+  'Fast Food',
+  'Healthy',
+  'Chinese',
+  'Japanese',
+  'Thai',
+  'Korean',
+  'Indian',
+  'Sri Lankan',
+  'Desserts & Bakery',
+  'Italian',
+  'Street Food',
 ];
 
-const AddMenuItemForm = ({ onSubmit, restaurantId }) => {
+const RegisterRestaurantForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
-    price: '',
-    category: 'Main Course',
+    address: '',
+    contact: '',
+    cuisineType: '',
   });
   const [imageFile, setImageFile] = useState(null);
+  const [contactError, setContactError] = useState('');
   const [uploadLoading, setUploadLoading] = useState(false);
+
+  const phoneRegex = /^\+\d{1,3}\d{6,14}$/;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    if (name === 'contact') {
+      if (!phoneRegex.test(value)) {
+        setContactError('Please enter a valid phone number (e.g., +94123456789)');
+      } else {
+        setContactError('');
+      }
+    }
   };
 
   const handleFileChange = (e) => {
@@ -50,19 +68,28 @@ const AddMenuItemForm = ({ onSubmit, restaurantId }) => {
     e.preventDefault();
     setUploadLoading(true);
 
+    if (!phoneRegex.test(formData.contact)) {
+      toast.error('Please fix the phone number format before submitting.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      setUploadLoading(false);
+      return;
+    }
+
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name);
-      formDataToSend.append('description', formData.description);
-      formDataToSend.append('price', parseFloat(formData.price));
-      formDataToSend.append('category', formData.category);
+      formDataToSend.append('address', formData.address);
+      formDataToSend.append('contact', formData.contact);
+      formDataToSend.append('cuisineType', formData.cuisineType);
       if (imageFile) {
         formDataToSend.append('image', imageFile);
       }
 
       await onSubmit(formDataToSend);
     } catch (err) {
-      toast.error(err.message || 'Failed to add menu item', {
+      toast.error(err.message || 'Failed to register restaurant', {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -84,35 +111,39 @@ const AddMenuItemForm = ({ onSubmit, restaurantId }) => {
         />
       </div>
       <div>
-        <label htmlFor="description">Description</label>
-        <textarea
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          rows="3"
-        />
-      </div>
-      <div>
-        <label htmlFor="price">Price</label>
+        <label htmlFor="address">Address</label>
         <input
-          type="number"
-          name="price"
-          value={formData.price}
+          type="text"
+          name="address"
+          value={formData.address}
           onChange={handleChange}
           required
-          min="0"
-          step="0.01"
         />
       </div>
       <div>
-        <label htmlFor="category">Category</label>
+        <label htmlFor="contact">Contact</label>
+        <input
+          type="text"
+          name="contact"
+          value={formData.contact}
+          onChange={handleChange}
+          required
+          placeholder="+94123456789"
+        />
+        {contactError && (
+          <p>{contactError}</p>
+        )}
+      </div>
+      <div>
+        <label htmlFor="cuisineType">Cuisine Type</label>
         <select
-          name="category"
-          value={formData.category}
+          name="cuisineType"
+          value={formData.cuisineType}
           onChange={handleChange}
           required
         >
-          {menuCategories.map((category) => (
+          <option value="">Select Cuisine</option>
+          {categories.map((category) => (
             <option key={category} value={category}>
               {category}
             </option>
@@ -120,7 +151,7 @@ const AddMenuItemForm = ({ onSubmit, restaurantId }) => {
         </select>
       </div>
       <div>
-        <label htmlFor="image">Menu Item Image (optional)</label>
+        <label htmlFor="image">Restaurant Image (optional)</label>
         <input
           type="file"
           name="image"
@@ -129,10 +160,10 @@ const AddMenuItemForm = ({ onSubmit, restaurantId }) => {
         />
       </div>
       <button type="submit" disabled={uploadLoading}>
-        {uploadLoading ? 'Uploading...' : 'Add Menu Item'}
+        {uploadLoading ? 'Uploading...' : 'Register'}
       </button>
     </form>
   );
 };
 
-export default AddMenuItemForm;
+export default RegisterRestaurantForm;

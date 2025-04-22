@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import restaurantService from '../../services/restaurantService';
 import { toast } from 'react-toastify';
-import Navbar from '../../components/common/Navbar';
+import RestaurantDashboardContent from '../../components/restaurant/RestaurantDashboardContent';
 
 const RestaurantDashboard = () => {
   const { restaurantId } = useParams();
@@ -34,7 +34,7 @@ const RestaurantDashboard = () => {
         throw new Error('You are not authorized to access this restaurant.');
       }
       setRestaurant(fetchedRestaurant);
-      setMenu(fetchedMenu);
+      setMenu(fetchedMenu || []); // Ensure menu is always an array
     } catch (err) {
       console.error('Error fetching restaurant details:', err);
       setError(err.message || 'Failed to fetch restaurant details');
@@ -85,78 +85,17 @@ const RestaurantDashboard = () => {
     loadData();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return (
-      <div>
-        <Navbar />
-        <p>{error}</p>
-        {error.includes('No restaurant found') && (
-          <div>
-            <button onClick={() => navigate('/admin/register-restaurant')}>
-              Register a Restaurant
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <Navbar />
-      <main>
-        <h2>{restaurant.name} Dashboard</h2>
-
-        <section>
-          <h3>Restaurant Details</h3>
-          <p><strong>Name:</strong> {restaurant.name}</p>
-          <p><strong>Address:</strong> {restaurant.address}</p>
-          <p><strong>Contact:</strong> {restaurant.contact}</p>
-          <p><strong>Cuisine Type:</strong> {restaurant.cuisineType}</p>
-          <div>
-            <p><strong>Availability:</strong> {restaurant.isAvailable ? 'Available' : 'Unavailable'}</p>
-            <button onClick={() => handleUpdateAvailability(!restaurant.isAvailable)}>
-              {restaurant.isAvailable ? 'Set Unavailable' : 'Set Available'}
-            </button>
-          </div>
-        </section>
-
-        <section>
-          <h3>Menu Items</h3>
-          <button onClick={() => navigate(`/restaurant/${restaurantId}/add-menu`)}>
-            Add Menu Item
-          </button>
-          {menu.length === 0 ? (
-            <p>No menu items available.</p>
-          ) : (
-            <ul>
-              {menu.map(item => (
-                <li key={item._id}>
-                  <div>
-                    <h4>{item.name}</h4>
-                    <p>{item.description}</p>
-                    <p>Price: ${item.price}</p>
-                    <p>Category: {item.category}</p>
-                  </div>
-                  <div>
-                    <button onClick={() => navigate(`/restaurant/${restaurantId}/edit-menu/${item._id}`)}>
-                      Edit
-                    </button>
-                    <button onClick={() => handleDeleteMenuItem(item._id)}>
-                      Delete
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      </main>
-    </div>
+    <RestaurantDashboardContent
+      loading={loading}
+      error={error}
+      restaurant={restaurant}
+      menu={menu}
+      handleUpdateAvailability={handleUpdateAvailability}
+      handleDeleteMenuItem={handleDeleteMenuItem}
+      navigate={navigate}
+      restaurantId={restaurantId}
+    />
   );
 };
 

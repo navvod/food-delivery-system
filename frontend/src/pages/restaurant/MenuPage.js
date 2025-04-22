@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import Navbar from '../../components/common/Navbar';
-import MenuItem from '../../components/restaurant/MenuItem';
 import restaurantService from '../../services/restaurantService';
 import { toast } from 'react-toastify';
+import MenuContent from '../../components/restaurant/MenuContent';
 
 const MenuPage = () => {
   const { restaurantId } = useParams();
@@ -32,42 +31,12 @@ const MenuPage = () => {
   }, [restaurantId]);
 
   return (
-    <div>
-      <Navbar />
-      <main>
-        {loading ? (
-          <div>Loading...</div>
-        ) : error ? (
-          <p>{error}</p>
-        ) : (
-          <>
-            <header>
-              {restaurant?.image ? (
-                <img src={restaurant.image} alt={restaurant.name} />
-              ) : (
-                <div>No Image</div>
-              )}
-              <h1>{restaurant?.name} Menu</h1>
-              <p>{restaurant?.address}</p>
-              <p>Cuisine: {restaurant?.cuisineType}</p>
-            </header>
-
-            <section>
-              <h2>Dishes</h2>
-              {menu.length === 0 ? (
-                <p>No menu items available.</p>
-              ) : (
-                <div>
-                  {menu.map((item) => (
-                    <MenuItem key={item._id} item={item} />
-                  ))}
-                </div>
-              )}
-            </section>
-          </>
-        )}
-      </main>
-    </div>
+    <MenuContent
+      loading={loading}
+      error={error}
+      restaurant={restaurant}
+      menu={menu}
+    />
   );
 };
 
