@@ -32,6 +32,11 @@ import OrderHistoryPage from './pages/order/OrderHistoryPage';
 import AdminDashboardPage2 from './pages/order/AdminDashboardPage2';
 import ActiveOrders from './components/order/ActiveOrders';
 
+//veenadhi
+
+import DriverMain from './pages/driver/DriverMain';
+import DriverProfile from './pages/driver/DriverProfile';
+import DriverRegistration from './pages/driver/DriverRegistration'; 
 
 function App() {
   return (
@@ -67,6 +72,12 @@ function App() {
               <Route path="/orders/active" element={<ActiveOrders />} />
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboardPage2 />} />
+
+                {/* veenadhi */}
+              <Route path="/driver-main" element={<DriverMain />} />
+              <Route path="/driver-profile" element={<DriverProfile />} />
+              <Route path="/driver-registration" element={<DriverRegistration />} />
+
            </Routes>
          </Router>
          <ToastContainer />
