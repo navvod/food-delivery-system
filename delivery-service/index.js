@@ -2,7 +2,8 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./src/config/db");
-const authRoutes = require("./src/routes/driverRoutes");
+const driverRoutes = require("./src/routes/driverRoutes");
+const deliveryoutes = require("./src/routes/deliveryOrderRoutes");
 
 
 dotenv.config();
@@ -15,8 +16,8 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-app.use("/api/driver", authRoutes);
-
+app.use("/api/driver", driverRoutes);
+app.use("/api/delivery", deliveryoutes);
 
 
 const PORT = process.env.PORT || 5003;
