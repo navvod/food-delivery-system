@@ -75,81 +75,142 @@ const EditMenuItemForm = ({ item, onUpdate, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} encType="multipart/form-data">
-      <div>
-        <label htmlFor="edit-name">Name:</label>
-        <input
-          id="edit-name"
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="edit-description">Description:</label>
-        <textarea
-          id="edit-description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <label htmlFor="edit-price">Price:</label>
-        <input
-          id="edit-price"
-          type="number"
-          name="price"
-          value={formData.price}
-          onChange={handleChange}
-          min="0"
-          step="0.01"
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="edit-category">Category:</label>
-        <select
-          id="edit-category"
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          required
-        >
-          {menuCategories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label>Current Image:</label>
-        {item.image ? (
-          <div>
-            <img src={item.image} alt="Current menu item" />
-          </div>
-        ) : (
-          <p>No image uploaded</p>
-        )}
-      </div>
-      <div>
-        <label htmlFor="edit-image">Upload New Image (Optional):</label>
-        <input
-          id="edit-image"
-          type="file"
-          name="image"
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-      </div>
-      <button type="submit" disabled={uploadLoading}>
-        {uploadLoading ? 'Uploading...' : 'Update Menu Item'}
-      </button>
-      <button type="button" onClick={onCancel}>Cancel</button>
-    </form>
+    <div className="max-w-md mx-auto p-6 bg-white rounded-xl shadow-sm">
+      <h2 className="text-2xl font-semibold text-secondary mb-6">Edit Menu Item</h2>
+      <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4">
+        {/* Name */}
+        <div>
+          <label htmlFor="edit-name" className="block text-sm font-medium text-secondary mb-1">
+            Name
+          </label>
+          <input
+            id="edit-name"
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-secondary placeholder-gray-400 transition-all duration-200"
+            placeholder="Enter menu item name"
+          />
+        </div>
+
+        {/* Description */}
+        <div>
+          <label
+            htmlFor="edit-description"
+            className="block text-sm font-medium text-secondary mb-1"
+          >
+            Description
+          </label>
+          <textarea
+            id="edit-description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            rows="3"
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-secondary placeholder-gray-400 transition-all duration-200"
+            placeholder="Enter description (optional)"
+          />
+        </div>
+
+        {/* Price */}
+        <div>
+          <label htmlFor="edit-price" className="block text-sm font-medium text-secondary mb-1">
+            Price (LKR)
+          </label>
+          <input
+            id="edit-price"
+            type="number"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            min="0"
+            step="0.01"
+            required
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-secondary placeholder-gray-400 transition-all duration-200"
+            placeholder="Enter price"
+          />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label
+            htmlFor="edit-category"
+            className="block text-sm font-medium text-secondary mb-1"
+          >
+            Category
+          </label>
+          <select
+            id="edit-category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-secondary transition-all duration-200"
+          >
+            {menuCategories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Current Image */}
+        <div>
+          <label className="block text-sm font-medium text-secondary mb-1">Current Image</label>
+          {item.image ? (
+            <div className="mb-2">
+              <img
+                src={item.image}
+                alt="Current menu item"
+                className="w-full h-48 object-cover rounded-lg"
+              />
+            </div>
+          ) : (
+            <p className="text-gray-500">No image uploaded</p>
+          )}
+        </div>
+
+        {/* New Image Upload */}
+        <div>
+          <label htmlFor="edit-image" className="block text-sm font-medium text-secondary mb-1">
+            Upload New Image (Optional)
+          </label>
+          <input
+            id="edit-image"
+            type="file"
+            name="image"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="w-full p-2 border border-gray-300 rounded-lg text-gray-700"
+          />
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-3">
+          <button
+            type="submit"
+            disabled={uploadLoading}
+            className={`flex-1 py-3 rounded-lg font-medium text-white transition-colors duration-200 ${
+              uploadLoading
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-primary hover:bg-primary-dark'
+            }`}
+          >
+            {uploadLoading ? 'Uploading...' : 'Update Menu Item'}
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 py-3 bg-gray-200 text-secondary rounded-lg font-medium hover:bg-gray-300 transition-colors duration-200"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 

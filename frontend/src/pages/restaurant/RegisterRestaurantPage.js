@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../../components/common/Navbar';
+import Navbar from '../../components/common/RestaurantNavbar';
 import RegisterRestaurantForm from '../../components/restaurant/RegisterRestaurantForm';
 import restaurantService from '../../services/restaurantService';
 import { toast } from 'react-toastify';
