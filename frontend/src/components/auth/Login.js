@@ -1,4 +1,3 @@
-// src/components/auth/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -13,9 +12,21 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      const response = await login(email, password); // Get the response from login
       toast.success('Logged in successfully!');
-      navigate('/profile');
+
+      // Determine redirect based on user role from the response
+      const role = response.user?.role; // Access role directly from response
+      if (role === 'customer') {
+        navigate('/customer-profile');
+      } else if (role === 'delivery_personnel') {
+        navigate('/driver-main');
+      } else if (role === 'restaurant_admin') {
+        navigate('/admin/dashboard');
+      } else {
+        // Fallback if role is not recognized
+        navigate('/profile');
+      }
     } catch (error) {
       toast.error(error.message || 'Login failed');
     }

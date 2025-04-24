@@ -10,6 +10,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import LoginPage from './pages/user/LoginPage';
 import RegisterPage from './pages/user/RegisterPage';
 import ProfilePage from './pages/user/ProfilePage';
+import CustomerSignUp from './pages/user/CustomerSignUp';
+import DeliverySignUp from './pages/user/DeliverySignUp';
+import RestaurantAdminSignUp from './pages/user/RestaurantAdminSignUp'; 
+
 
 //naduni
 import Home from './pages/restaurant/Home';
@@ -49,6 +53,9 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/customer-signup" element={<CustomerSignUp />} />
+              <Route path="/delivery-signup" element={<DeliverySignUp />} />
+              <Route path="/restaurant-admin-signup" element={<RestaurantAdminSignUp />} />
 
               {/* naduni */}
               <Route path="/" element={<Home />} />
