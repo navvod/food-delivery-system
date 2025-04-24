@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import restaurantService from '../../services/restaurantService';
 import { toast } from 'react-toastify';
-import Navbar from '../../components/common/Navbar';
+import Navbar from '../../components/common/RestaurantNavbar';
 import EditMenuItemForm from '../../components/restaurant/EditMenuItemForm';
 
 const EditMenuItemPage = () => {

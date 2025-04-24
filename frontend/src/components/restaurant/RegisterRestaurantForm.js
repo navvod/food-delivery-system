@@ -99,70 +99,114 @@ const RegisterRestaurantForm = ({ onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} encType="multipart/form-data">
-      <div>
-        <label htmlFor="name">Name</label>
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="address">Address</label>
-        <input
-          type="text"
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="contact">Contact</label>
-        <input
-          type="text"
-          name="contact"
-          value={formData.contact}
-          onChange={handleChange}
-          required
-          placeholder="+94123456789"
-        />
-        {contactError && (
-          <p>{contactError}</p>
-        )}
-      </div>
-      <div>
-        <label htmlFor="cuisineType">Cuisine Type</label>
-        <select
-          name="cuisineType"
-          value={formData.cuisineType}
-          onChange={handleChange}
-          required
+    <div className="max-w-md mx-auto p-6 bg-white rounded-xl shadow-sm">
+      <h2 className="text-2xl font-semibold text-secondary mb-6">Register Restaurant</h2>
+      <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4">
+        {/* Name */}
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-secondary mb-1">
+            Name
+          </label>
+          <input
+            type="text"
+            name="name"
+            id="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-secondary placeholder-gray-400 transition-all duration-200"
+            placeholder="Enter restaurant name"
+          />
+        </div>
+
+        {/* Address */}
+        <div>
+          <label htmlFor="address" className="block text-sm font-medium text-secondary mb-1">
+            Address
+          </label>
+          <input
+            type="text"
+            name="address"
+            id="address"
+            value={formData.address}
+            onChange={handleChange}
+            required
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-secondary placeholder-gray-400 transition-all duration-200"
+            placeholder="Enter address"
+          />
+        </div>
+
+        {/* Contact */}
+        <div>
+          <label htmlFor="contact" className="block text-sm font-medium text-secondary mb-1">
+            Contact
+          </label>
+          <input
+            type="text"
+            name="contact"
+            id="contact"
+            value={formData.contact}
+            onChange={handleChange}
+            required
+            placeholder="+94123456789"
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-secondary placeholder-gray-400 transition-all duration-200"
+          />
+          {contactError && (
+            <p className="text-red-500 text-sm mt-1">{contactError}</p>
+          )}
+        </div>
+
+        {/* Cuisine Type */}
+        <div>
+          <label htmlFor="cuisineType" className="block text-sm font-medium text-secondary mb-1">
+            Cuisine Type
+          </label>
+          <select
+            name="cuisineType"
+            id="cuisineType"
+            value={formData.cuisineType}
+            onChange={handleChange}
+            required
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-secondary transition-all duration-200"
+          >
+            <option value="">Select Cuisine</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Image Upload */}
+        <div>
+          <label htmlFor="image" className="block text-sm font-medium text-secondary mb-1">
+            Restaurant Image (optional)
+          </label>
+          <input
+            type="file"
+            name="image"
+            id="image"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="w-full p-2 border border-gray-300 rounded-lg text-gray-700"
+          />
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={uploadLoading}
+          className={`w-full py-3 rounded-lg font-medium text-white transition-colors duration-200 ${
+            uploadLoading
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-primary hover:bg-primary-dark'
+          }`}
         >
-          <option value="">Select Cuisine</option>
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="image">Restaurant Image (optional)</label>
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-      </div>
-      <button type="submit" disabled={uploadLoading}>
-        {uploadLoading ? 'Uploading...' : 'Register'}
-      </button>
-    </form>
+          {uploadLoading ? 'Uploading...' : 'Register'}
+        </button>
+      </form>
+    </div>
   );
 };
 
