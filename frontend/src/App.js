@@ -33,7 +33,7 @@ import CreateOrderPage from './pages/order/CreateOrderPage';
 import OrderListPage from './pages/order/OrderListPage';
 import OrderDetailsPage from './pages/order/OrderDetailsPage';
 import OrderHistoryPage from './pages/order/OrderHistoryPage';
-import AdminDashboardPage2 from './pages/order/AdminDashboardPage2';
+import AdminOrderPage from './pages/order/AdminOrderPage';
 import ActiveOrders from './components/order/ActiveOrders';
 
 //veenadhi
@@ -78,7 +78,7 @@ function App() {
               <Route path="/history" element={<OrderHistoryPage />} />
               <Route path="/orders/active" element={<ActiveOrders />} />
               {/* Admin Routes */}
-              <Route path="/admin" element={<AdminDashboardPage2 />} />
+              <Route path="/admin-order" element={<AdminOrderPage />} />
 
                 {/* veenadhi */}
               <Route path="/driver-main" element={<DriverMain />} />

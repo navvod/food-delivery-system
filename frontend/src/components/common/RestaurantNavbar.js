@@ -71,7 +71,7 @@ const Navbar = () => {
                     Dashboard
                   </Link>
                   <Link
-                    to="/admin/orders"
+                    to="/admin-order"
                     className="text-secondary hover:text-primary transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
