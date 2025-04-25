@@ -38,7 +38,16 @@ const getRestaurantMenu = async (req, res) => {
       return res.status(404).json({ error: 'Restaurant not found' });
     }
     const menu = await MenuItem.find({ restaurantId: restaurant._id });
-    res.status(200).json({ restaurant: { _id: restaurant._id, name: restaurant.name, cuisineType: restaurant.cuisineType }, menu });
+    res.status(200).json({
+      restaurant: {
+        _id: restaurant._id,
+        name: restaurant.name,
+        cuisineType: restaurant.cuisineType,
+        address: restaurant.address, // Add address
+        image: restaurant.image,     // Add image
+      },
+      menu,
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch menu: ' + error.message });
   }

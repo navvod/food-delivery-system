@@ -87,7 +87,7 @@ const EditMenuItemPage = () => {
     <div>
       <Navbar />
       <section>
-        <h2>Edit Menu Item</h2>
+        
         <EditMenuItemForm
           item={formData}
           onUpdate={handleUpdateMenuItem}

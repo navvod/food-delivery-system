@@ -1,44 +1,65 @@
+// frontend/src/components/restaurant/MenuContent.js
 import React from 'react';
 import Navbar from '../common/RestaurantNavbar';
 import MenuItem from './MenuItem';
 
 const MenuContent = ({ loading, error, restaurant, menu }) => {
+  const defaultImage = 'https://via.placeholder.com/300x200.png?text=Restaurant+Image';
+
   return (
-    <div className="min-h-screen bg-background font-sans">
+    <div className="min-h-screen bg-gray-50 font-sans">
       <Navbar />
-      <main className="max-w-7xl mx-auto p-4">
+      <main className="max-w-7xl mx-auto">
         {loading ? (
           <div className="text-center text-gray-600 text-lg py-10">Loading...</div>
         ) : error ? (
           <p className="text-red-500 text-lg text-center py-10">{error}</p>
         ) : (
           <>
-            {/* Restaurant Header */}
-            <header className="mb-8">
-              {restaurant?.image ? (
-                <img
-                  src={restaurant.image}
-                  alt={restaurant.name}
-                  className="w-full h-64 object-cover rounded-xl mb-4"
-                />
-              ) : (
-                <div className="w-full h-64 bg-gray-200 rounded-xl flex items-center justify-center text-gray-500 mb-4">
-                  No Image
-                </div>
-              )}
-              <h1 className="text-3xl font-semibold text-secondary mb-2">
-                {restaurant?.name} Menu
-              </h1>
-              <p className="text-gray-700 mb-1">{restaurant?.address}</p>
-              <p className="text-gray-700">
-                <strong className="font-semibold text-secondary">Cuisine:</strong>{' '}
-                {restaurant?.cuisineType}
-              </p>
+            {/* Restaurant Header with Banner Image */}
+            <header className="relative">
+              <img
+                src={restaurant?.image || defaultImage}
+                alt={restaurant?.name || 'Restaurant'}
+                className="w-full h-80 object-cover"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
+                <h1 className="text-4xl font-bold text-white">
+                  {restaurant?.name || 'Restaurant'} Menu
+                </h1>
+              </div>
             </header>
 
+            {/* Restaurant Info Section */}
+            <section className="p-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                <div>
+                  <p className="text-gray-700">
+                    {restaurant?.address || 'Address not available'}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong className="font-semibold text-gray-800">Cuisine:</strong>{' '}
+                    {restaurant?.cuisineType || 'N/A'}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong className="font-semibold text-gray-800">Delivery:</strong>{' '}
+                    Free • 30-40 min
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button className="px-4 py-2 bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300">
+                    Delivery
+                  </button>
+                  <button className="px-4 py-2 bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300">
+                    Pickup
+                  </button>
+                </div>
+              </div>
+            </section>
+
             {/* Menu Items Section */}
-            <section>
-              <h2 className="text-2xl font-semibold text-secondary mb-4">Dishes</h2>
+            <section className="p-4">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Dishes</h2>
               {menu.length === 0 ? (
                 <p className="text-gray-500 text-center py-8">No menu items available.</p>
               ) : (

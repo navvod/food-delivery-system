@@ -1,9 +1,10 @@
+// frontend/src/components/common/RestaurantNavbar.js
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
 
-const Navbar = () => {
+const RestaurantNavbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,36 +23,36 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-sm p-4 sticky top-0 z-50 font-sans">
+    <nav className="bg-white p-4 sticky top-0 z-50 font-sans">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        {/* Logo/App Name */}
-        <Link
-          to="/"
-          className="text-2xl font-semibold text-primary hover:text-primary-dark transition-colors duration-200"
-        >
-          Food Delivery
-        </Link>
-
-        {/* Hamburger Menu Button (Visible on Mobile) */}
-        <button
-          className="md:hidden text-secondary focus:outline-none"
-          onClick={toggleMenu}
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
+        {/* Logo and Hamburger Menu */}
+        <div className="flex items-center gap-3">
+          <button
+            className="md:hidden text-black focus:outline-none"
+            onClick={toggleMenu}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d={isMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16m-7 6h7'}
-            />
-          </svg>
-        </button>
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d={isMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16m-7 6h7'}
+              />
+            </svg>
+          </button>
+          <Link
+            to="/"
+            className="text-xl font-bold text-black no-underline"
+          >
+            Food Delivery
+          </Link>
+        </div>
 
         {/* Navigation Links */}
         <div
@@ -65,21 +66,21 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/admin/dashboard"
-                    className="text-secondary hover:text-primary transition-colors duration-200"
+                    className="text-black hover:text-gray-600 transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
                   <Link
                     to="/admin-order"
-                    className="text-secondary hover:text-primary transition-colors duration-200"
+                    className="text-black hover:text-gray-600 transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Orders
                   </Link>
                   <Link
                     to="/admin/register-restaurant"
-                    className="text-secondary hover:text-primary transition-colors duration-200"
+                    className="text-black hover:text-gray-600 transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Register Restaurant
@@ -89,7 +90,7 @@ const Navbar = () => {
               {user.role === 'customer' && (
                 <Link
                   to="/restaurants"
-                  className="text-secondary hover:text-primary transition-colors duration-200"
+                  className="text-black hover:text-gray-600 transition-colors duration-200"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Restaurants
@@ -97,7 +98,7 @@ const Navbar = () => {
               )}
               <Link
                 to="/profile"
-                className="text-secondary hover:text-primary transition-colors duration-200"
+                className="text-black hover:text-gray-600 transition-colors duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Profile
@@ -107,7 +108,7 @@ const Navbar = () => {
                   handleLogout();
                   setIsMenuOpen(false);
                 }}
-                className="px-3 py-1 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors duration-200"
+                className="px-4 py-2 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors duration-200"
               >
                 Logout
               </button>
@@ -116,17 +117,17 @@ const Navbar = () => {
             <>
               <Link
                 to="/login"
-                className="text-secondary hover:text-primary transition-colors duration-200"
+                className="px-4 py-2 border border-black rounded-full text-black no-underline hover:bg-gray-100 transition-colors duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Login
+                Log in
               </Link>
               <Link
                 to="/register"
-                className="text-secondary hover:text-primary transition-colors duration-200"
+                className="px-4 py-2 bg-black text-white rounded-full no-underline hover:bg-gray-800 transition-colors duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Register
+                Sign up
               </Link>
             </>
           )}
@@ -136,4 +137,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default RestaurantNavbar;
