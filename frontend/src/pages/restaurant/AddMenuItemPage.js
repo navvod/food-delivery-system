@@ -46,7 +46,7 @@ const AddMenuItemPage = () => {
     <div>
       <Navbar />
       <section>
-        <h2>Add New Menu Item</h2>
+        
         <AddMenuItemForm onSubmit={handleAddMenuItem} restaurantId={restaurantId} />
         <button onClick={() => navigate(`/restaurant/${restaurantId}/dashboard`)}>
           Back to Dashboard

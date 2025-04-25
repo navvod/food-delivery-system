@@ -1,6 +1,7 @@
-import React from 'react';
-import { ToastContainer } from 'react-toastify';
+import React, { useRef, useState, useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 import Navbar from '../common/RestaurantNavbar';
+import restaurantService from '../../services/restaurantService'; // Import the service to fetch restaurants
 
 const categories = [
   { name: 'Vegan', icon: '🥦' },
@@ -19,9 +20,6 @@ const categories = [
 ];
 
 const RestaurantsContent = ({
-  loading,
-  restaurants,
-  filteredRestaurants,
   searchQuery,
   setSearchQuery,
   selectedCategory,
@@ -32,6 +30,47 @@ const RestaurantsContent = ({
   toggleFavorite,
   navigate,
 }) => {
+  const [restaurants, setRestaurants] = useState([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch restaurants from the backend
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        setLoading(true);
+        const response = await restaurantService.getRestaurants();
+        setRestaurants(response);
+        setFilteredRestaurants(response);
+      } catch (error) {
+        console.error('Error fetching restaurants:', error);
+        toast.error('Failed to load restaurants. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRestaurants();
+  }, []);
+
+  // Filter restaurants based on search query and selected category
+  useEffect(() => {
+    let filtered = restaurants;
+
+    if (searchQuery) {
+      filtered = filtered.filter((restaurant) =>
+        restaurant.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (selectedCategory) {
+      filtered = filtered.filter(
+        (restaurant) => restaurant.cuisineType === selectedCategory
+      );
+    }
+
+    setFilteredRestaurants(filtered);
+  }, [searchQuery, selectedCategory, restaurants]);
+
   const groupedRestaurants = filteredRestaurants.reduce((acc, restaurant) => {
     const category = restaurant.cuisineType || 'Other';
     acc[category] = acc[category] || [];
@@ -43,11 +82,31 @@ const RestaurantsContent = ({
     setSelectedCategory(category === selectedCategory ? '' : category);
   };
 
-  const handleRestaurantClick = (restaurantId) => {
+  const handleRestaurantClick = (restaurantId, available) => {
+    if (!available) {
+      toast.info('This restaurant is currently unavailable.');
+      return;
+    }
     navigate(`/restaurants/${restaurantId}/menu`);
   };
 
-  console.log('Filtered Restaurants:', filteredRestaurants);
+  const handleOrderHistoryClick = () => {
+    navigate('/order-history');
+  };
+
+  const scrollRef = useRef(null);
+
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
 
   if (loading) {
     return <div className="text-center text-gray-600 text-lg py-10">Loading...</div>;
@@ -63,16 +122,20 @@ const RestaurantsContent = ({
       {/* Header Section */}
       <header className="bg-white p-4 shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <button className="text-xl">📍</button>
+              <button className="flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-800 hover:bg-gray-200">
+                <span>📍</span>
+                <span>Location • Now</span>
+                <span>▼</span>
+              </button>
               <div className="flex gap-2">
                 <button
                   onClick={() => setDeliveryType('Delivery')}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
                     deliveryType === 'Delivery'
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-200 text-secondary hover:bg-primary-dark hover:text-white'
+                      ? 'bg-black text-white'
+                      : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                   }`}
                 >
                   Delivery
@@ -81,23 +144,37 @@ const RestaurantsContent = ({
                   onClick={() => setDeliveryType('Pickup')}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
                     deliveryType === 'Pickup'
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-200 text-secondary hover:bg-primary-dark hover:text-white'
+                      ? 'bg-black text-white'
+                      : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                   }`}
                 >
                   Pickup
                 </button>
               </div>
             </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleOrderHistoryClick}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-full text-sm hover:bg-gray-300"
+              >
+                Order History
+              </button>
+              <button className="relative">
+                <span className="text-xl">🛒</span>
+                <span className="absolute top-0 right-0 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  0
+                </span>
+              </button>
+            </div>
           </div>
           <div className="relative">
             <input
               type="text"
-              placeholder="What are you craving?"
+              placeholder="Search Restaurants"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               aria-label="Search for restaurants or dishes"
-              className="w-full p-3 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-secondary placeholder-gray-400 transition-all duration-200"
+              className="w-full p-3 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800 placeholder-gray-400 transition-all duration-200"
             />
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
           </div>
@@ -107,41 +184,67 @@ const RestaurantsContent = ({
       {/* Main Content */}
       <main className="max-w-7xl mx-auto p-4">
         {/* Categories Section */}
-        <section className="mb-8">
-          <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide snap-x snap-mandatory">
-            {categories.map((category) => (
-              <button
-                key={category.name}
-                onClick={() => handleCategoryClick(category.name)}
-                className={`flex-shrink-0 flex flex-col items-center p-3 rounded-lg min-w-[110px] transition-colors duration-200 snap-center ${
-                  selectedCategory === category.name
-                    ? 'bg-primary text-white'
-                    : 'bg-white text-secondary hover:bg-gray-100'
-                }`}
-              >
-                <span className="text-2xl mb-1">{category.icon}</span>
-                <span className="text-sm font-medium">{category.name}</span>
-              </button>
-            ))}
+        <section className="mb-8 relative">
+          <div className="flex items-center">
+            <button
+              onClick={scrollLeft}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-gray-200 to-transparent rounded-full w-8 h-8 flex items-center justify-center text-gray-800 hover:bg-gray-300 z-10"
+            >
+              <span className="text-xl">←</span>
+            </button>
+            <div
+              ref={scrollRef}
+              className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide snap-x snap-mandatory w-full"
+            >
+              {categories.map((category) => (
+                <button
+                  key={category.name}
+                  onClick={() => handleCategoryClick(category.name)}
+                  className={`flex-shrink-0 flex items-center gap-2 p-3 rounded-full min-w-[120px] transition-colors duration-200 snap-center ${
+                    selectedCategory === category.name
+                      ? 'bg-black text-white'
+                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                  }`}
+                >
+                  <span className="text-xl">{category.icon}</span>
+                  <span className="text-sm font-medium">{category.name}</span>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={scrollRight}
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gradient-to-l from-gray-200 to-transparent rounded-full w-8 h-8 flex items-center justify-center text-gray-800 hover:bg-gray-300 z-10"
+            >
+              <span className="text-xl">→</span>
+            </button>
           </div>
         </section>
 
         {/* Restaurants Section */}
         <section>
-          <h2 className="text-2xl font-semibold text-secondary mb-4">All Stores</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">All Stores</h2>
           {Object.keys(groupedRestaurants).length === 0 ? (
             <p className="text-gray-500 text-center py-8">No restaurants available.</p>
           ) : (
             Object.keys(groupedRestaurants).map((category) => (
               <div key={category} className="mb-8">
-                <h3 className="text-xl font-medium text-secondary mb-3">{category}</h3>
+                <h3 className="text-xl font-medium text-gray-800 mb-3">{category}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {groupedRestaurants[category].map((restaurant) => (
                     <div
                       key={restaurant._id}
-                      onClick={() => handleRestaurantClick(restaurant._id)}
-                      className="bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-all duration-300"
+                      onClick={() => handleRestaurantClick(restaurant._id, restaurant.isAvailable)}
+                      className={`bg-white rounded-xl shadow-sm overflow-hidden relative transition-all duration-300 ${
+                        restaurant.isAvailable
+                          ? 'cursor-pointer hover:shadow-md'
+                          : 'opacity-50 grayscale cursor-not-allowed'
+                      }`}
                     >
+                      {!restaurant.isAvailable && (
+                        <div className="absolute top-0 left-0 w-full bg-gray-800 bg-opacity-70 text-white text INLINE_TEXT-center py-2">
+                          <span className="text-sm font-medium">Unavailable</span>
+                        </div>
+                      )}
                       <div className="relative">
                         <img
                           src={restaurant.image || defaultImage}
@@ -154,14 +257,14 @@ const RestaurantsContent = ({
                             toggleFavorite(restaurant._id);
                           }}
                           className={`absolute top-3 right-3 text-2xl transition-colors duration-200 ${
-                            favorites.includes(restaurant._id) ? 'text-primary' : 'text-gray-400'
-                          } hover:text-primary-dark`}
+                            favorites.includes(restaurant._id) ? 'text-red-500' : 'text-gray-400'
+                          } hover:text-red-600 ${!restaurant.isAvailable && 'pointer-events-none'}`}
                         >
                           {favorites.includes(restaurant._id) ? '♥' : '♡'}
                         </button>
                       </div>
                       <div className="p-4">
-                        <h4 className="text-lg font-semibold text-secondary">{restaurant.name}</h4>
+                        <h4 className="text-lg font-semibold text-gray-800">{restaurant.name}</h4>
                         <p className="text-sm text-gray-500 mt-1">{restaurant.cuisineType}</p>
                         <p className="text-sm text-gray-600 mt-1">⭐ 4.5 • 30-40 min • Free Delivery</p>
                       </div>
