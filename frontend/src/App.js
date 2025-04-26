@@ -13,6 +13,7 @@ import ProfilePage from './pages/user/ProfilePage';
 import CustomerSignUp from './pages/user/CustomerSignUp';
 import DeliverySignUp from './pages/user/DeliverySignUp';
 import RestaurantAdminSignUp from './pages/user/RestaurantAdminSignUp'; 
+import ActiveOrderPage from './pages/order/ActiveOrderPage';
 
 
 //naduni
@@ -34,7 +35,7 @@ import OrderListPage from './pages/order/OrderListPage';
 import OrderDetailsPage from './pages/order/OrderDetailsPage';
 import OrderHistoryPage from './pages/order/OrderHistoryPage';
 import AdminOrderPage from './pages/order/AdminOrderPage';
-import ActiveOrders from './components/order/ActiveOrders';
+
 
 //veenadhi
 
@@ -76,7 +77,7 @@ function App() {
               <Route path="/orders" element={<OrderListPage />} />
               <Route path="/order/:orderId" element={<OrderDetailsPage />} />
               <Route path="/history" element={<OrderHistoryPage />} />
-              <Route path="/orders/active" element={<ActiveOrders />} />
+              <Route path="/active-orders" element={<ActiveOrderPage/>} />
               {/* Admin Routes */}
               <Route path="/admin-order" element={<AdminOrderPage />} />
 
