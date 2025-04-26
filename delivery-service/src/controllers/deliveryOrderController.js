@@ -116,8 +116,62 @@ const getAssignedOrders = async (req, res) => {
   }
 };
 
+const updateDeliveryStatus = async (req, res) => {
+  const { orderId, status } = req.body;
+
+  try {
+    // Validate required fields
+    if (!orderId || !status) {
+      return res.status(400).json({ message: 'orderId and status are required' });
+    }
+
+    // Validate status value
+    const allowedStatuses = ['Picked Up', 'Delivered', 'Cancelled'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Status must be one of: Picked Up, Delivered, Cancelled' });
+    }
+
+    // Find the delivery
+    const delivery = await Delivery.findOne({ orderId });
+    if (!delivery) {
+      return res.status(404).json({ message: 'Delivery not found' });
+    }
+
+    // Find the driver and verify authorization
+    const driver = await Driver.findById(delivery.driverId);
+    if (!driver || driver.userId !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to update this delivery' });
+    }
+
+    // Check if the driver has accepted the assignment
+    if (delivery.acceptStatus !== 'Accepted') {
+      return res.status(400).json({ message: 'Delivery must be accepted before updating status' });
+    }
+
+    // Check if the delivery is already in a final state
+    if (['Delivered', 'Cancelled'].includes(delivery.status)) {
+      return res.status(400).json({ message: 'Delivery status cannot be updated after being Delivered or Cancelled' });
+    }
+
+    // Update the delivery status
+    delivery.status = status;
+    await delivery.save();
+
+    // If the status is "Delivered" or "Cancelled", make the driver available again
+    if (['Delivered', 'Cancelled'].includes(status)) {
+      driver.isAvailable = true;
+      await driver.save();
+    }
+
+    res.status(200).json({ message: 'Delivery status updated successfully', delivery });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating delivery status', error: error.message });
+  }
+};
+
 module.exports = {
   assignDriver,
   respondToAssignment,
   getAssignedOrders,
+  updateDeliveryStatus,
 };
