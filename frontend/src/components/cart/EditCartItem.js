@@ -31,25 +31,27 @@ const EditCartItem = () => {
   };
 
   if (!item) {
-    return <p>Item not found in cart.</p>;
+    return <p className="text-center text-secondary text-lg">Item not found in cart.</p>;
   }
 
   const total = item.price * (Number(quantity) || 1);
 
   return (
-    <div>
-      <h2>Edit Cart Item</h2>
+    <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg">
+      <h2 className="text-2xl font-bold text-secondary mb-4">Make Changes Before Checkout!</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Item:</label>
-          <span>{item.itemName}</span>
+        <div className="mb-4">
+          <label className="block text-secondary font-medium mb-1">Item:</label>
+          <span className="text-gray-600">{item.itemName}</span>
         </div>
-        <div>
-          <label>Price:</label>
-          <span>${item.price}</span>
+        <div className="mb-4">
+          <label className="block text-secondary font-medium mb-1">Price:</label>
+          <span className="text-gray-600">
+            LKR {item.price.toLocaleString('en-LK', { minimumFractionDigits: 2 })}
+          </span>
         </div>
-        <div>
-          <label>Quantity:</label>
+        <div className="mb-4">
+          <label className="block text-secondary font-medium mb-1">Quantity:</label>
           <input
             type="number"
             name="quantity"
@@ -60,13 +62,21 @@ const EditCartItem = () => {
             }}
             min="1"
             required
+            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
-        <div>
-          <label>Total:</label>
-          <span>${total.toFixed(2)}</span>
+        <div className="mb-11">
+          <label className="block text-secondary font-medium mb-1">Total:</label>
+          <span className="text-gray-600">
+            LKR {total.toLocaleString('en-LK', { minimumFractionDigits: 2 })}
+          </span>
         </div>
-        <button type="submit">Save Changes</button>
+        <button
+          type="submit"
+          className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary-dark transition"
+        >
+          Save Changes
+        </button>
       </form>
     </div>
   );

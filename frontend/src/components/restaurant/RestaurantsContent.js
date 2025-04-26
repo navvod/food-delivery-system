@@ -91,7 +91,7 @@ const RestaurantsContent = ({
   };
 
   const handleOrderHistoryClick = () => {
-    navigate('/order-history');
+    navigate('/history');
   };
 
   const scrollRef = useRef(null);

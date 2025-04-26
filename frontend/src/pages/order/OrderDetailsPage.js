@@ -1,4 +1,4 @@
-import CustomerNavbar from '../../components/common/CustomerNavbar';
+import CustomerNavbar from '../../components/common/OrderNavbar';
 import OrderDetails from '../../components/order/OrderDetails';
 
 const OrderDetailsPage = () => {

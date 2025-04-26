@@ -1,13 +1,13 @@
 import OrderNavbar from '../../components/common/OrderNavbar';
-import OrderHistory from '../../components/order/OrderHistory';
+import ActiveOrders from '../../components/order/ActiveOrders';
 
-const OrderHistoryPage = () => {
+const ActiveOrderPage = () => {
   return (
     <div className="container" style={{ backgroundColor: 'lightgray', padding: '20px' }}>
       <OrderNavbar />
-      <OrderHistory />
+      <ActiveOrders/>
     </div>
   );
 };
 
-export default OrderHistoryPage;
+export default ActiveOrderPage;
