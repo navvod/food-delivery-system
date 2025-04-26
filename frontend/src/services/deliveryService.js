@@ -42,6 +42,10 @@ const deliveryService = {
     const response = await api.delivery.get('/api/delivery/assigned-orders');
     return response.data;
   },
+  updateDeliveryStatus: async (orderId, status) => {
+    const response = await api.delivery.post('/api/delivery/update-status', { orderId, status });
+    return response.data;
+  },
 };
 
 export default deliveryService;

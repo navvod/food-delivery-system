@@ -35,6 +35,20 @@ const AssignedOrders = () => {
     }
   };
 
+  const handleUpdateStatus = async (orderId, status) => {
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await deliveryService.updateDeliveryStatus(orderId, status);
+      setSuccess(response.message);
+      // Refresh the orders list after updating status
+      fetchAssignedOrders();
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+    }
+  };
+
   return (
     <div>
       <h2>Assigned Orders</h2>
@@ -51,12 +65,35 @@ const AssignedOrders = () => {
             <p>Status: {order.status}</p>
             <p>Accept Status: {order.acceptStatus}</p>
             <div>
-              <button onClick={() => handleResponse(order.orderId, 'accept')}>
-                Accept
-              </button>
-              <button onClick={() => handleResponse(order.orderId, 'decline')}>
-                Decline
-              </button>
+              {order.acceptStatus === 'Pending' && (
+                <>
+                  <button onClick={() => handleResponse(order.orderId, 'accept')}>
+                    Accept
+                  </button>
+                  <button onClick={() => handleResponse(order.orderId, 'decline')}>
+                    Decline
+                  </button>
+                </>
+              )}
+              {order.acceptStatus === 'Accepted' && !['Delivered', 'Cancelled'].includes(order.status) && (
+                <>
+                  {order.status === 'Assigned' && (
+                    <button onClick={() => handleUpdateStatus(order.orderId, 'Picked Up')}>
+                      Mark as Picked Up
+                    </button>
+                  )}
+                  {order.status === 'Picked Up' && (
+                    <button onClick={() => handleUpdateStatus(order.orderId, 'Delivered')}>
+                      Mark as Delivered
+                    </button>
+                  )}
+                  {order.status !== 'Delivered' && (
+                    <button onClick={() => handleUpdateStatus(order.orderId, 'Cancelled')}>
+                      Cancel Order
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           </div>
         ))
