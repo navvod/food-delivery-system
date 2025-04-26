@@ -34,13 +34,21 @@ const DeliverySignUpForm = () => {
   };
 
   return (
-    <div>
-      <h2>Delivery Personnel Sign Up</h2>
-      {error && <p>{error}</p>}
-      {success && <p>{success}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Name:</label>
+    <div className="bg-white p-3 rounded-lg shadow-md w-full max-w-md">
+      <h2 className="text-2xl font-bold text-secondary mb-4 text-center">Delivery Personnel Sign Up</h2>
+
+      {error && (
+        <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+      )}
+      {success && (
+        <p className="text-accent text-sm mb-4 text-center">{success}</p>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <label htmlFor="name" className="block text-sm font-medium text-secondary">
+            Name
+          </label>
           <input
             type="text"
             id="name"
@@ -48,10 +56,14 @@ const DeliverySignUpForm = () => {
             value={formData.name}
             onChange={handleChange}
             required
+            className="w-full px-3 py-2 border border-secondary rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
-        <div>
-          <label htmlFor="email">Email:</label>
+
+        <div className="space-y-2">
+          <label htmlFor="email" className="block text-sm font-medium text-secondary">
+            Email
+          </label>
           <input
             type="email"
             id="email"
@@ -59,10 +71,14 @@ const DeliverySignUpForm = () => {
             value={formData.email}
             onChange={handleChange}
             required
+            className="w-full px-3 py-2 border border-secondary rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
-        <div>
-          <label htmlFor="password">Password:</label>
+
+        <div className="space-y-2">
+          <label htmlFor="password" className="block text-sm font-medium text-secondary">
+            Password
+          </label>
           <input
             type="password"
             id="password"
@@ -70,9 +86,16 @@ const DeliverySignUpForm = () => {
             value={formData.password}
             onChange={handleChange}
             required
+            className="w-full px-3 py-2 border border-secondary rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
-        <button type="submit">Sign Up</button>
+
+        <button
+          type="submit"
+          className="w-full bg-primary text-white py-2 rounded-md hover:bg-primary-dark transition-colors duration-200 mt-4"
+        >
+          Sign Up
+        </button>
       </form>
     </div>
   );
