@@ -13,6 +13,14 @@ const restaurantService = {
       throw error;
     }
   },
+  getRestaurantAddress: async (restaurantId) => {
+    try {
+      const response = await api.restaurant.get(`/api/restaurants/${restaurantId}/address`);
+      return response.data.address;
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to fetch restaurant address' };
+    }
+  },
   getRestaurantMenu: async (restaurantId) => {
     try {
       const response = await api.restaurant.get(`/api/restaurants/${restaurantId}/menu`, {

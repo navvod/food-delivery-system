@@ -30,6 +30,27 @@ const getRestaurants = async (req, res) => {
   }
 };
 
+const getRestaurantAddress = async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+
+    // Validate restaurantId
+    if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
+      return res.status(400).json({ error: 'Invalid restaurant ID format' });
+    }
+
+    const restaurant = await Restaurant.findById(restaurantId).select('address');
+    if (!restaurant) {
+      return res.status(404).json({ error: 'Restaurant not found' });
+    }
+
+    res.status(200).json({ address: restaurant.address });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch restaurant address: ' + error.message });
+  }
+};
+
+
 // Get a restaurant's menu (public)
 const getRestaurantMenu = async (req, res) => {
   try {
@@ -281,6 +302,7 @@ const getRestaurantDetails = async (req, res) => {
 
 module.exports = {
   getRestaurants,
+  getRestaurantAddress,
   getRestaurantMenu,
   getMenuItem,
   registerRestaurant,

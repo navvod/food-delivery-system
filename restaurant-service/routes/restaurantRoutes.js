@@ -12,11 +12,13 @@ const {
   getRestaurants,
   getRestaurantMenu,
   getMenuItem,
+  getRestaurantAddress,
 } = require('../controller/restaurantController');
 
 // Public routes (no authentication required)
 router.get('/', getRestaurants);
 router.get('/:restaurantId/menu', getRestaurantMenu);
+router.get('/:restaurantId/address', getRestaurantAddress);
 
 // Admin routes (require authentication and role)
 router.post('/register', protect, authorize('restaurant_admin'), upload.single('image'), registerRestaurant);
