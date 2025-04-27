@@ -1,8 +1,9 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../../context/CartContext';
 import { OrderContext } from '../../context/OrderContext';
 import { toast } from 'react-toastify';
+import paymentService from '../../services/paymentService';
 
 const CreateOrder = () => {
   const navigate = useNavigate();
@@ -12,6 +13,32 @@ const CreateOrder = () => {
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [fromAddress, setFromAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [cards, setCards] = useState([]);
+  const [selectedCardId, setSelectedCardId] = useState('');
+  const [orderId, setOrderId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  // Fetch cards on mount
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        setLoading(true);
+        const data = await paymentService.getCards();
+        setCards(data);
+        if (data.length > 0) {
+          setSelectedCardId(data[0]._id); // Pre-select the first card
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCards();
+  }, []);
 
   const handlePlaceOrder = async () => {
     if (!deliveryAddress || !fromAddress || !phoneNumber) {
@@ -25,18 +52,54 @@ const CreateOrder = () => {
       return;
     }
 
+    if (!selectedCardId) {
+      toast.error('Please select a payment card');
+      return;
+    }
+
     try {
       const orderData = {
         deliveryAddress,
         fromAddress,
         phoneNumber,
       };
-      await createOrder(orderData);
-      toast.success('Order placed successfully!');
-      navigate('/orders');
+      const response = await createOrder(orderData);
+      setOrderId(response.order._id); // Assuming createOrder returns the created order with an _id
+      toast.success('Order placed successfully! Please proceed with payment.');
     } catch (error) {
       console.log('Place order error:', error.message);
       toast.error(error.message || 'Failed to place order');
+    }
+  };
+
+  const handlePayment = async () => {
+    if (!orderId) {
+      toast.error('No order placed yet');
+      return;
+    }
+
+    const totalAmount = cart.totalAmount || cart.items.reduce((sum, item) => sum + item.amount, 0);
+
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+
+      const paymentData = {
+        orderId,
+        amount: totalAmount,
+        cardId: selectedCardId,
+      };
+
+      const response = await paymentService.processPayment(paymentData);
+      setSuccess(response.message);
+      toast.success('Payment processed successfully!');
+      navigate('/orders');
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+      toast.error(err.response?.data?.message || 'Failed to process payment');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -130,6 +193,35 @@ const CreateOrder = () => {
               />
             </div>
 
+            {/* Payment Card Selection */}
+            <div className="space-y-2">
+              <label htmlFor="paymentCard" className="block text-sm font-medium text-secondary">
+                Select Payment Card
+              </label>
+              {loading ? (
+                <p>Loading cards...</p>
+              ) : cards.length === 0 ? (
+                <p>No cards found. Please add a card.</p>
+              ) : (
+                <select
+                  id="paymentCard"
+                  value={selectedCardId}
+                  onChange={(e) => setSelectedCardId(e.target.value)}
+                  className="w-full px-3 py-2 border border-secondary rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="">Select a card</option>
+                  {cards.map((card) => (
+                    <option key={card._id} value={card._id}>
+                      {card.brand} ending in {card.last4}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            {error && <p className="text-red-500">{error}</p>}
+            {success && <p className="text-green-500">{success}</p>}
+
             <div className="flex space-x-4 mt-6">
               <button
                 onClick={() => navigate('/cart')}
@@ -137,12 +229,22 @@ const CreateOrder = () => {
               >
                 Back to Cart
               </button>
-              <button
-                onClick={handlePlaceOrder}
-                className="flex-1 bg-primary text-white py-2 rounded-md hover:bg-primary-dark transition-colors duration-200"
-              >
-                Place Order
-              </button>
+              {!orderId ? (
+                <button
+                  onClick={handlePlaceOrder}
+                  className="flex-1 bg-primary text-white py-2 rounded-md hover:bg-primary-dark transition-colors duration-200"
+                >
+                  Place Order
+                </button>
+              ) : (
+                <button
+                  onClick={handlePayment}
+                  disabled={loading}
+                  className="flex-1 bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition-colors duration-200"
+                >
+                  {loading ? 'Processing...' : 'Pay Now'}
+                </button>
+              )}
             </div>
           </div>
         </div>

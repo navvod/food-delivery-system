@@ -19,19 +19,19 @@ const paymentService = {
   },
      // Process a payment
   processPayment: async (data) => {
-    const response = await api.payment.post('/api/payment/process-payment', data);
+    const response = await api.payment.post('/api/payments/pay', data);
     return response.data;
   },
 
   // Get payment status for an order
   getPaymentStatus: async (orderId) => {
-    const response = await api.payment.get(`/api/payment/get-payment-status/${orderId}`);
+    const response = await api.payment.get(`/api/payments/${orderId}`);
     return response.data;
   },
 
   // Refund a payment
   refundPayment: async (orderId) => {
-    const response = await api.payment.post(`/api/payment/refund-payment/${orderId}`);
+    const response = await api.payment.post(`/api/payments/refund/${orderId}`);
     return response.data;
   },
   
