@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import Navbar from '../common/RestaurantNavbar';
-import restaurantService from '../../services/restaurantService'; // Import the service to fetch restaurants
+import restaurantService from '../../services/restaurantService';
+import { CartContext } from '../../context/CartContext'; // Import CartContext
 
 const categories = [
   { name: 'Vegan', icon: '🥦' },
@@ -30,6 +31,7 @@ const RestaurantsContent = ({
   toggleFavorite,
   navigate,
 }) => {
+  const { cart, fetchCart } = React.useContext(CartContext); // Access CartContext
   const [restaurants, setRestaurants] = useState([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +53,11 @@ const RestaurantsContent = ({
     };
     fetchRestaurants();
   }, []);
+
+  // Fetch cart data when the component mounts
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   // Filter restaurants based on search query and selected category
   useEffect(() => {
@@ -94,6 +101,10 @@ const RestaurantsContent = ({
     navigate('/history');
   };
 
+  const handleCartClick = () => {
+    navigate('/cart');
+  };
+
   const scrollRef = useRef(null);
 
   const scrollLeft = () => {
@@ -113,6 +124,9 @@ const RestaurantsContent = ({
   }
 
   const defaultImage = 'https://via.placeholder.com/300x200.png?text=Restaurant+Image';
+
+  // Calculate the number of items in the cart
+  const cartItemCount = cart && cart.items ? cart.items.length : 0;
 
   return (
     <div className="min-h-screen bg-background font-sans">
@@ -159,10 +173,10 @@ const RestaurantsContent = ({
               >
                 Order History
               </button>
-              <button className="relative">
+              <button onClick={handleCartClick} className="relative">
                 <span className="text-xl">🛒</span>
                 <span className="absolute top-0 right-0 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  0
+                  {cartItemCount}
                 </span>
               </button>
             </div>
@@ -241,7 +255,7 @@ const RestaurantsContent = ({
                       }`}
                     >
                       {!restaurant.isAvailable && (
-                        <div className="absolute top-0 left-0 w-full bg-gray-800 bg-opacity-70 text-white text INLINE_TEXT-center py-2">
+                        <div className="absolute top-0 left-0 w-full bg-gray-800 bg-opacity-70 text-white text-center py-2">
                           <span className="text-sm font-medium">Unavailable</span>
                         </div>
                       )}

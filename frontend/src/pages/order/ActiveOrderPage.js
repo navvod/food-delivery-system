@@ -3,9 +3,14 @@ import ActiveOrders from '../../components/order/ActiveOrders';
 
 const ActiveOrderPage = () => {
   return (
-    <div className="container" style={{ backgroundColor: 'lightgray', padding: '20px' }}>
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Navbar (already styled in OrderNavbar.js) */}
       <OrderNavbar />
-      <ActiveOrders/>
+
+      {/* Main Content */}
+      <div className="flex-1 pt-20 pb-8 px-4 sm:px-6 lg:px-8">
+        <ActiveOrders />
+      </div>
     </div>
   );
 };
