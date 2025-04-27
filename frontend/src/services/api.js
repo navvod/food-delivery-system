@@ -6,6 +6,7 @@ const BASE_URLS = {
   restaurant: process.env.REACT_APP_RESTAURANT_SERVICE_URL || 'http://localhost:5004',
   order: process.env.REACT_APP_ORDER_SERVICE_URL || 'http://localhost:5005',
   delivery: process.env.REACT_APP_DELIVERY_SERVICE_URL || 'http://localhost:5003',
+  notification: process.env.REACT_APP_NOTIFICATION_SERVICE_URL || 'http://localhost:5002',
 };
 
 const api = {
@@ -14,6 +15,7 @@ const api = {
   restaurant: axios.create({ baseURL: BASE_URLS.restaurant }),
   order: axios.create({ baseURL: BASE_URLS.order }),
   delivery: axios.create({ baseURL: BASE_URLS.delivery }),
+  notification: axios.create({ baseURL: BASE_URLS.notification }),
 };
 
 const setAuthToken = (token) => {
@@ -23,6 +25,7 @@ const setAuthToken = (token) => {
     api.restaurant.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     api.order.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     api.delivery.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    api.notification.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
   } else {
     delete api.user.defaults.headers.common['Authorization'];
@@ -30,6 +33,7 @@ const setAuthToken = (token) => {
     delete api.restaurant.defaults.headers.common['Authorization'];
     delete api.order.defaults.headers.common['Authorization'];
     delete api.delivery.defaults.headers.common['Authorization'];
+    delete api.notification.defaults.headers.common['Authorization'];
     
   }
 };

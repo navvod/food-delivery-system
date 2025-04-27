@@ -4,11 +4,14 @@ import { CartContext } from '../../context/CartContext';
 import { OrderContext } from '../../context/OrderContext';
 import { toast } from 'react-toastify';
 import paymentService from '../../services/paymentService';
+import notificationService from '../../services/notificationService';
+import useAuth from '../../hooks/useAuth';
 
 const CreateOrder = () => {
   const navigate = useNavigate();
   const { cart } = useContext(CartContext);
   const { createOrder } = useContext(OrderContext);
+  const { user } = useAuth();
 
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [fromAddress, setFromAddress] = useState('');
@@ -19,16 +22,26 @@ const CreateOrder = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [userEmail, setUserEmail] = useState('');
 
-  // Fetch cards on mount
+  // Fetch cards and set user email on mount
   useEffect(() => {
-    const fetchCards = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await paymentService.getCards();
-        setCards(data);
-        if (data.length > 0) {
-          setSelectedCardId(data[0]._id); // Pre-select the first card
+
+        // Fetch cards
+        const cardData = await paymentService.getCards();
+        setCards(cardData);
+        if (cardData.length > 0) {
+          setSelectedCardId(cardData[0]._id);
+        }
+
+        // Set user email from useAuth
+        if (user && user.email) {
+          setUserEmail(user.email);
+        } else {
+          throw new Error('User email not available. Please ensure you are logged in.');
         }
       } catch (err) {
         setError(err.response?.data?.message || err.message);
@@ -37,8 +50,8 @@ const CreateOrder = () => {
       }
     };
 
-    fetchCards();
-  }, []);
+    fetchData();
+  }, [user]); // Add user as a dependency to re-run if user changes
 
   const handlePlaceOrder = async () => {
     if (!deliveryAddress || !fromAddress || !phoneNumber) {
@@ -57,18 +70,40 @@ const CreateOrder = () => {
       return;
     }
 
+    if (!userEmail) {
+      toast.error('User email not available. Please ensure you are logged in and try again.');
+      return;
+    }
+
     try {
+      const totalAmount = cart.totalAmount || cart.items.reduce((sum, item) => sum + item.amount, 0);
+      console.log('Total amount calculated:', totalAmount);
+
       const orderData = {
         deliveryAddress,
         fromAddress,
         phoneNumber,
       };
+      console.log('Order data being sent:', orderData);
+
       const response = await createOrder(orderData);
-      setOrderId(response.order._id); // Assuming createOrder returns the created order with an _id
-      toast.success('Order placed successfully! Please proceed with payment.');
+      console.log('Order creation response:', response);
+      setOrderId(response.order._id);
+
+      const emailPayload = {
+        to: userEmail,
+        subject: 'Order Confirmation - Your Order Has Been Successfully Placed',
+        message: `Dear Customer,\n\nYour order (ID: ${response.order._id}) has been successfully placed!\n\nOrder Details:\n- Total Amount: $${totalAmount}\n- Delivery Address: ${deliveryAddress}\n- From Address: ${fromAddress}\n\nThank you for choosing our service. You'll receive further updates on your order status.\n\nBest regards,\nFood Delivery Team`,
+      };
+      console.log('Sending email notification with payload:', emailPayload);
+
+      const emailResponse = await notificationService.sendEmailNotification(emailPayload);
+      console.log('Email notification response:', emailResponse);
+
+      toast.success('Order placed and confirmation email sent! Please proceed with payment.');
     } catch (error) {
-      console.log('Place order error:', error.message);
-      toast.error(error.message || 'Failed to place order');
+      console.error('Place order error:', error);
+      toast.error(error.response?.data?.message || error.message || 'Failed to place order or send notification');
     }
   };
 
@@ -91,9 +126,10 @@ const CreateOrder = () => {
         cardId: selectedCardId,
       };
 
-      const response = await paymentService.processPayment(paymentData);
-      setSuccess(response.message);
+      const paymentResponse = await paymentService.processPayment(paymentData);
+      setSuccess(paymentResponse.message);
       toast.success('Payment processed successfully!');
+
       navigate('/orders');
     } catch (err) {
       setError(err.response?.data?.message || err.message);
@@ -102,6 +138,16 @@ const CreateOrder = () => {
       setLoading(false);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <p className="text-lg text-secondary">
+          Please log in to place an order.
+        </p>
+      </div>
+    );
+  }
 
   if (!cart || cart.items.length === 0) {
     return (
@@ -191,6 +237,20 @@ const CreateOrder = () => {
                 required
                 className="w-full px-3 py-2 border border-secondary rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
               />
+            </div>
+
+            {/* Display Fetched User Email */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-secondary">
+                Your Email
+              </label>
+              {loading ? (
+                <p className="text-sm text-gray-600">Loading email...</p>
+              ) : userEmail ? (
+                <p className="text-sm text-secondary">{userEmail}</p>
+              ) : (
+                <p className="text-sm text-red-500">Failed to load email</p>
+              )}
             </div>
 
             {/* Payment Card Selection */}
