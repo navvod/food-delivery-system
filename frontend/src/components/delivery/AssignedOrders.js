@@ -28,7 +28,6 @@ const AssignedOrders = () => {
     try {
       const response = await deliveryService.respondToAssignment(orderId, action);
       setSuccess(response.message);
-      // Refresh the orders list after responding
       fetchAssignedOrders();
     } catch (err) {
       setError(err.response?.data?.message || err.message);
@@ -42,7 +41,6 @@ const AssignedOrders = () => {
     try {
       const response = await deliveryService.updateDeliveryStatus(orderId, status);
       setSuccess(response.message);
-      // Refresh the orders list after updating status
       fetchAssignedOrders();
     } catch (err) {
       setError(err.response?.data?.message || err.message);
@@ -50,54 +48,133 @@ const AssignedOrders = () => {
   };
 
   return (
-    <div>
-      <h2>Assigned Orders</h2>
-      {error && <p>{error}</p>}
-      {success && <p>{success}</p>}
-      {orders.length === 0 ? (
-        <p>No pending orders assigned.</p>
-      ) : (
-        orders.map((order) => (
-          <div key={order._id}>
-            <p>Order ID: {order.orderId}</p>
-            <p>Restaurant Location: {order.restaurantLocation}</p>
-            <p>Delivery Location: {order.deliveryLocation}</p>
-            <p>Status: {order.status}</p>
-            <p>Accept Status: {order.acceptStatus}</p>
-            <div>
-              {order.acceptStatus === 'Pending' && (
-                <>
-                  <button onClick={() => handleResponse(order.orderId, 'accept')}>
-                    Accept
-                  </button>
-                  <button onClick={() => handleResponse(order.orderId, 'decline')}>
-                    Decline
-                  </button>
-                </>
-              )}
-              {order.acceptStatus === 'Accepted' && !['Delivered', 'Cancelled'].includes(order.status) && (
-                <>
-                  {order.status === 'Assigned' && (
-                    <button onClick={() => handleUpdateStatus(order.orderId, 'Picked Up')}>
-                      Mark as Picked Up
-                    </button>
-                  )}
-                  {order.status === 'Picked Up' && (
-                    <button onClick={() => handleUpdateStatus(order.orderId, 'Delivered')}>
-                      Mark as Delivered
-                    </button>
-                  )}
-                  {order.status !== 'Delivered' && (
-                    <button onClick={() => handleUpdateStatus(order.orderId, 'Cancelled')}>
-                      Cancel Order
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4 sm:p-6">
+      <div className="w-full max-w-4xl">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">
+          Assigned Orders
+        </h2>
+
+        {/* Error and Success Messages */}
+        {error && (
+          <p className="text-red-500 text-sm sm:text-base bg-red-50 p-3 rounded-md mb-4 text-center">
+            {error}
+          </p>
+        )}
+        {success && (
+          <p className="text-green-500 text-sm sm:text-base bg-green-50 p-3 rounded-md mb-4 text-center">
+            {success}
+          </p>
+        )}
+
+        {/* Orders List */}
+        {orders.length === 0 ? (
+          <p className="text-gray-600 text-sm sm:text-base bg-white p-4 rounded-lg shadow-md text-center">
+            No pending orders assigned.
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {orders.map((order) => (
+              <div
+                key={order._id}
+                className="bg-white p-4 sm:p-6 rounded-lg shadow-md border border-gray-200"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Order Details */}
+                  <div>
+                    <p className="text-sm sm:text-base text-gray-700">
+                      <span className="font-semibold">Order ID:</span> {order.orderId}
+                    </p>
+                    <p className="text-sm sm:text-base text-gray-700 mt-1">
+                      <span className="font-semibold">Restaurant Location:</span>{' '}
+                      {order.restaurantLocation}
+                    </p>
+                    <p className="text-sm sm:text-base text-gray-700 mt-1">
+                      <span className="font-semibold">Delivery Location:</span>{' '}
+                      {order.deliveryLocation}
+                    </p>
+                    <p className="text-sm sm:text-base text-gray-700 mt-1">
+                      <span className="font-semibold">Status:</span>{' '}
+                      <span
+                        className={`inline-block px-2 py-1 rounded-full text-xs sm:text-sm ${
+                          order.status === 'Delivered'
+                            ? 'bg-green-100 text-green-700'
+                            : order.status === 'Cancelled'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-yellow-100 text-yellow-700'
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </p>
+                    <p className="text-sm sm:text-base text-gray-700 mt-1">
+                      <span className="font-semibold">Accept Status:</span>{' '}
+                      <span
+                        className={`inline-block px-2 py-1 rounded-full text-xs sm:text-sm ${
+                          order.acceptStatus === 'Accepted'
+                            ? 'bg-green-100 text-green-700'
+                            : order.acceptStatus === 'Declined'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {order.acceptStatus}
+                      </span>
+                    </p>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4 sm:mt-0">
+                    {order.acceptStatus === 'Pending' && (
+                      <>
+                        <button
+                          onClick={() => handleResponse(order.orderId, 'accept')}
+                          className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 text-sm sm:text-base"
+                        >
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => handleResponse(order.orderId, 'decline')}
+                          className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 text-sm sm:text-base"
+                        >
+                          Decline
+                        </button>
+                      </>
+                    )}
+                    {order.acceptStatus === 'Accepted' && !['Delivered', 'Cancelled'].includes(order.status) && (
+                      <>
+                        {order.status === 'Assigned' && (
+                          <button
+                            onClick={() => handleUpdateStatus(order.orderId, 'Picked Up')}
+                            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 text-sm sm:text-base"
+                          >
+                            Mark as Picked Up
+                          </button>
+                        )}
+                        {order.status === 'Picked Up' && (
+                          <button
+                            onClick={() => handleUpdateStatus(order.orderId, 'Delivered')}
+                            className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 text-sm sm:text-base"
+                          >
+                            Mark as Delivered
+                          </button>
+                        )}
+                        {order.status !== 'Delivered' && (
+                          <button
+                            onClick={() => handleUpdateStatus(order.orderId, 'Cancelled')}
+                            className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 text-sm sm:text-base"
+                          >
+                            Cancel Order
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        ))
-      )}
+        )}
+      </div>
     </div>
   );
 };

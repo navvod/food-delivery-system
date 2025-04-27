@@ -21,56 +21,73 @@ const OrderDetails = () => {
   if (loading || !order) return <LoadingSpinner />;
 
   return (
-    <div className="order-details-container">
-      <h2 className="order-details-title">Order Details</h2>
+    <div className="bg-gray-100 px-4 sm:px-6 lg:px-8 py-2 sm:py-4">
+      <div className="w-full max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6 sm:p-8">
+        {/* Title */}
+        <h2 className="text-2xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">
+          Order Details
+        </h2>
 
-      <div className="order-summary">
-        <div className="order-row">
-          <span className="label">Order ID:</span>
-          <span>{order._id}</span>
+        {/* Order Summary */}
+        <div className="border-b border-gray-200 pb-4 mb-6">
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm sm:text-base font-medium text-gray-600">Total Amount:</span>
+              <span className="text-sm sm:text-base text-gray-800">${order.totalAmount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm sm:text-base font-medium text-gray-600">Status:</span>
+              <span
+                className={`text-sm sm:text-base px-2 py-1 rounded-full ${
+                  order.status === 'Delivered'
+                    ? 'bg-green-100 text-green-700'
+                    : order.status === 'out_for_delivery'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'bg-yellow-100 text-yellow-700'
+                }`}
+              >
+                {order.status}
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="order-row">
-          <span className="label">Restaurant ID:</span>
-          <span>{order.restaurantId}</span>
-        </div>
-        <div className="order-row">
-          <span className="label">Total Amount:</span>
-          <span>${order.totalAmount.toFixed(2)}</span>
-        </div>
-        <div className="order-row">
-          <span className="label">Status:</span>
-          <span>{order.status}</span>
-        </div>
-      </div>
 
-      <h3>Items</h3>
-      <div className="order-items">
-        <table className="items-table">
-          <thead>
-            <tr>
-              <th>Item Name</th>
-              <th>Price</th>
-              <th>Quantity</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {order.items.map((item) => (
-              <tr key={item.itemId}>
-                <td>{item.name || 'N/A'}</td>
-                <td>${item.price.toFixed(2)}</td>
-                <td>{item.quantity}</td>
-                <td>${(item.amount || item.price * item.quantity).toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        {/* Items Section */}
+        <div className="mb-6">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Items</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm sm:text-base text-gray-600">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="p-3 text-left font-medium text-gray-700">Item Name</th>
+                  <th className="p-3 text-left font-medium text-gray-700">Price</th>
+                  <th className="p-3 text-left font-medium text-gray-700">Quantity</th>
+                  <th className="p-3 text-left font-medium text-gray-700">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.items.map((item) => (
+                  <tr key={item.itemId} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="p-3">{item.name || 'N/A'}</td>
+                    <td className="p-3">${item.price.toFixed(2)}</td>
+                    <td className="p-3">{item.quantity}</td>
+                    <td className="p-3">${(item.amount || item.price * item.quantity).toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-      <div className="back-button-container">
-        <button onClick={() => navigate('/orders')} className="back-button">
-          Back to Order List
-        </button>
+        {/* Back Button */}
+        <div className="flex justify-center">
+          <button
+            onClick={() => navigate('/orders')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 text-sm sm:text-base"
+          >
+            Back to Order List
+          </button>
+        </div>
       </div>
     </div>
   );
