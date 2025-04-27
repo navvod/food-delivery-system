@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import deliveryService from '../../services/deliveryService';
+import notificationService from '../../services/notificationService';
+import useAuth from '../../hooks/useAuth';
 
 const AssignedOrders = () => {
+  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -26,8 +29,31 @@ const AssignedOrders = () => {
     setSuccess(null);
 
     try {
+      // Respond to the assignment (accept or decline)
       const response = await deliveryService.respondToAssignment(orderId, action);
       setSuccess(response.message);
+
+      // If the action is 'accept', send an email to the delivery personnel
+      if (action === 'accept') {
+        if (!user || !user.email) {
+          throw new Error('User email not available. Please ensure you are logged in.');
+        }
+
+        const emailPayload = {
+          to: user.email,
+          subject: 'Order Assignment Accepted',
+          message: `Dear Delivery Personnel,\n\nYou have successfully accepted the order (ID: ${orderId}).\n\nOrder Details:\n- Restaurant Location: ${
+            orders.find((order) => order.orderId === orderId)?.restaurantLocation || 'N/A'
+          }\n- Delivery Location: ${
+            orders.find((order) => order.orderId === orderId)?.deliveryLocation || 'N/A'
+          }\n\nPlease proceed to pick up the order at your earliest convenience.\n\nBest regards,\nFood Delivery Team`,
+        };
+
+        const emailResponse = await notificationService.sendEmailNotification(emailPayload);
+        setSuccess(`${response.message} Email notification sent to ${user.email}.`);
+      }
+
+      // Refresh the orders list
       fetchAssignedOrders();
     } catch (err) {
       setError(err.response?.data?.message || err.message);
@@ -46,6 +72,16 @@ const AssignedOrders = () => {
       setError(err.response?.data?.message || err.message);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <p className="text-lg text-gray-800">
+          Please log in to view assigned orders.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4 sm:p-6">
