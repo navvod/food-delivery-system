@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import authService from '../../services/authService';
 
 const RestaurantAdminSignUpForm = () => {
@@ -9,6 +10,7 @@ const RestaurantAdminSignUpForm = () => {
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,6 +34,16 @@ const RestaurantAdminSignUpForm = () => {
       setError(err.response?.data?.message || err.message);
     }
   };
+
+  // Navigate to restaurant login page after successful signup
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        navigate('/restaurant-login');
+      }, 2000); // Redirect after 2 seconds
+      return () => clearTimeout(timer); // Cleanup timer on unmount
+    }
+  }, [success, navigate]);
 
   return (
     <div className="bg-white p-3 rounded-lg shadow-md w-full max-w-md">

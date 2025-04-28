@@ -18,7 +18,7 @@ const Login = () => {
       // Determine redirect based on user role from the response
       const role = response.user?.role; // Access role directly from response
       if (role === 'customer') {
-        navigate('/customer-profile');
+        navigate('/profile');
       } else if (role === 'delivery_personnel') {
         navigate('/driver-main');
       } else if (role === 'restaurant_admin') {

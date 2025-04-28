@@ -14,8 +14,8 @@ const CustomerNavbar = () => {
         <div className="flex justify-between h-16">
           {/* Brand/Logo */}
           <div className="flex items-center">
-            <Link to="/" className="text-xl sm:text-2xl font-bold">
-              Customer Portal
+            <Link to="/active-orders" className="text-xl sm:text-2xl font-bold">
+              Order Portal
             </Link>
           </div>
 
@@ -32,6 +32,12 @@ const CustomerNavbar = () => {
               className="text-sm sm:text-base px-3 py-2 rounded-md hover:bg-gray-700 transition-colors duration-200"
             >
               Order History
+            </Link>
+            <Link
+              to="/profile"
+              className="text-sm sm:text-base px-3 py-2 rounded-md hover:bg-gray-700 transition-colors duration-200"
+            >
+              Profile
             </Link>
           </div>
 
@@ -78,6 +84,13 @@ const CustomerNavbar = () => {
               onClick={() => setIsOpen(false)}
             >
               Order History
+            </Link>
+            <Link
+              to="/profile"
+              className="text-sm px-3 py-2 rounded-md hover:bg-gray-700 transition-colors duration-200"
+              onClick={() => setIsOpen(false)}
+            >
+              Profile
             </Link>
           </div>
         </div>

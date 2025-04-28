@@ -123,7 +123,7 @@ const RestaurantNavbar = () => {
                 Log in
               </Link>
               <Link
-                to="/register"
+                to="/customer-signup"
                 className="px-4 py-2 bg-black text-white rounded-full no-underline hover:bg-gray-800 transition-colors duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
