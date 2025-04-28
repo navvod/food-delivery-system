@@ -15,7 +15,7 @@ const DriverNavbar = () => {
           {/* Logo / Title */}
           <div className="flex-shrink-0">
             <h1 className="text-xl sm:text-2xl font-bold">
-              <Link to="/driver-portal" className="hover:text-gray-300 transition-colors duration-200">
+              <Link to="/driver-main" className="hover:text-gray-300 transition-colors duration-200">
                 Driver Portal
               </Link>
             </h1>
