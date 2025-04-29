@@ -39,8 +39,8 @@ const RestaurantAdminSignUpForm = () => {
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {
-        navigate('/restaurant-login');
-      }, 2000); // Redirect after 2 seconds
+        navigate('/login');
+      }, 1000); // Redirect after 2 seconds
       return () => clearTimeout(timer); // Cleanup timer on unmount
     }
   }, [success, navigate]);

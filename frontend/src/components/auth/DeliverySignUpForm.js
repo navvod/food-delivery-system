@@ -40,7 +40,7 @@ const DeliverySignUpForm = () => {
     if (success) {
       const timer = setTimeout(() => {
         navigate('/login');
-      }, 2000); // Redirect after 2 seconds
+      }, 1000); // Redirect after 2 seconds
       return () => clearTimeout(timer); // Cleanup timer on unmount
     }
   }, [success, navigate]);
